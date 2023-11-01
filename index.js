@@ -1,3 +1,4 @@
+////////////////////////
 //Utility function
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -6,7 +7,9 @@ function uuid() {
     return v.toString(16);
   });
 }
+////////////////////////////
 //TODO: CRUD FUNCTIONS
+//////////////////////////////
 
 //CREATE TODO FUNCTION
 
@@ -19,14 +22,21 @@ const DB_NAME = 'todo_db';
 
 const createTodo = () => {
   const todoInput = document.querySelector('#todo-input');
+
   //To validate our input and make a good ux
   if (!todoInput.value) {
     const formMessageSpan = document.querySelector('#form-message');
+    //error message
     formMessageSpan.innerHTML = 'Please provide a todo title';
     formMessageSpan.classList.remove('hidden');
+    formMessageSpan.classList.add('text-xs', 'text-red-400');
+
+    //disapearing error messages
+    setTimeout(() => {
+      formMessageSpan.classList.add('hidden');
+    }, 5000);
+
     return;
-  } else {
-    formMessageSpan.classList.add('hidden');
   }
 
   const newTodo = {
@@ -54,11 +64,18 @@ const createTodo = () => {
 ///////////////////
 //READ TODO FUNCTION
 const fetchTodos = () => {
-  const todo_db = JSON.parse(localStorage.getItem(DB_NAME));
   const todoListsContainer = document.querySelector('#todo-lists-container');
+  const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+  const noTodo = todo_db.length === 0;
+  //Writing the condition
+  if (noTodo) {
+    todoListsContainer.innerHTML = `<p class="text-center text-slate-500">Your todos will appear here.</p>`;
+    return;
+  }
+
   //we sort to bring data in front of array, we can perform map and it will return an array
   const todos = todo_db
-    ?.sort((a, b) =>
+    .sort((a, b) =>
       a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0
     )
     .map((todo) => {
@@ -69,7 +86,7 @@ const fetchTodos = () => {
     <!-- Title, action (edit, delete, view) -->
     <a href="">${todo.title}</a>
     <section class="flex gap-3 invisible group-hover:visible">
-      <button>
+      <button onclick="handleEditMode('${todo.id}')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -121,13 +138,13 @@ const deleteTodo = (id) => {
     console.log(res.isConfirmed);
     //to confirm the cancel btn
     if (res.isConfirmed) {
-      console.log(id);
+      //   console.log(id);
       //Get todo ls [Local Storage]
-      const todo_db = JSON.parse(localStorage.getItem(DB_NAME));
-      console.log(todo_db);
+      const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+      //   console.log(todo_db);
       //filter out todos that doesn't match the id
       const new_todo_db = todo_db.filter((todo) => todo.id !== id);
-      console.log(new_todo_db);
+      //   console.log(new_todo_db);
       //set the new todos without the todo that matches the id to the ls
       localStorage.setItem(DB_NAME, JSON.stringify(new_todo_db));
       fetchTodos();
@@ -138,5 +155,20 @@ const deleteTodo = (id) => {
 };
 
 //////////////////////
-// UPDATE TODO FUNCTION
+// UPDATE/EDIT TODO FUNCTION
+const handleEditMode = (id) => {
+  console.log(id);
+  const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [s];
+  const todo_to_update = todo_db.find((todo) => todo.id === id);
+  console.log(todo_to_update);
+  if (!todo_to_update) {
+    return;
+  }
+  const todoInput = document.querySelector('#todo-input');
+  todoInput.value = todo_to_update.title;
+
+  //To hide and delete btn
+};
+
+//call out function
 fetchTodos();
