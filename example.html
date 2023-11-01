@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo CRUD app</title>
+    <!-- <script src="
+    https://cdn.tailwindcss.com"></script> -->
+  </head>
+  <body>
+    <header class="px-5 py-4 border-b border-slate-400 max-w-lg mx-auto">
+      <h1 class="text-4xl text-slate-700 font-medium">TodoList</h1>
+    </header>
+
+    <main class="px-5 mt-10 max-w-lg mx-auto">
+      <form class="flex gap-2">
+        <input
+          type="text"
+          placeholder="What are you doing today?"
+          class="p-2 rounded-lg border border-slate-100 w-full"
+          id="todo-input"
+        />
+        <button
+          class="bg-blue-500 rounded-lg px-2.5 py-2 text-sm text-white w-[100px]"
+          onclick="createTodo()"
+          type="button"
+        >
+          Add todo
+        </button>
+      </form>
+    </main>
+
+    <section class="mt-5">
+      <div
+        class="group flex justify-between py-3 px-2.5 max-w-lg mx-auto rounded-lg hover:bg-slate-50"
+      >
+        <!-- Title, action (edit, delete, view) -->
+        <a href=""> Buy Bread</a>
+        <section class="flex gap-3 invisible group-hover:visible">
+          <button class="flex justify-between">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10 "
+              />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
+        </section>
+      </div>
+    </section>
+
+    <!-- js -->
+    <script>
+      // access input field
+      const input = document.querySelector('#todo-input');
+
+      // Listening to the click event from the "Add" button.
+      document.querySelector('#submit').addEventListener('click', () => {
+        // value of the input field
+        const inputData = input.value;
+        input.value = '';
+
+        ///////////////////
+        // CREATE
+        const todo_el = document.createElement('div');
+        todo_el.classList.add('todo-item');
+
+        const todo_content_el = document.createElement('div');
+        todo_el.appendChild(todo_content_el);
+
+        const todo_input_el = document.createElement('input');
+        todo_input_el.classList.add('text');
+        todo_input_el.type = 'text';
+        todo_input_el.value = inputData;
+        todo_input_el.setAttribute('readonly', 'readonly');
+
+        todo_content_el.appendChild(todo_input_el);
+
+        const todo_actions_el = document.createElement('div');
+        todo_actions_el.classList.add('action-items');
+
+        const todo_done_el = document.createElement('i');
+        todo_done_el.classList.add('fa-solid');
+        todo_done_el.classList.add('fa-check');
+
+        const todo_edit_el = document.createElement('i');
+        todo_edit_el.classList.add('fa-solid');
+        todo_edit_el.classList.add('fa-pen-to-square');
+        todo_edit_el.classList.add('edit');
+
+        const todo_delete_el = document.createElement('i');
+        todo_delete_el.classList.add('fa-solid');
+        todo_delete_el.classList.add('fa-trash');
+
+        todo_actions_el.appendChild(todo_done_el);
+        todo_actions_el.appendChild(todo_edit_el);
+        todo_actions_el.appendChild(todo_delete_el);
+
+        todo_el.appendChild(todo_actions_el);
+        console.log(todo_el);
+        ///////////////////////////
+        // add the todo-item to lists
+        document.querySelector('.todo-lists').appendChild(todo_el);
+
+        ///////////////////
+        // UPDATE
+        todo_done_el.addEventListener('click', () => {
+          todo_input_el.classList.add('done');
+          todo_el.removeChild(todo_actions_el);
+        });
+
+        ///////////////////
+        // EDIT
+        todo_edit_el.addEventListener('click', (e) => {
+          if (todo_edit_el.classList.contains('edit')) {
+            todo_edit_el.classList.remove('edit');
+            todo_edit_el.classList.remove('fa-pen-to-square');
+            todo_edit_el.classList.add('fa-x');
+            todo_edit_el.classList.add('save');
+            todo_input_el.removeAttribute('readonly');
+            todo_input_el.focus();
+          } else {
+            todo_edit_el.classList.remove('save');
+            todo_edit_el.classList.remove('fa-x');
+            todo_edit_el.classList.add('fa-pen-to-square');
+            todo_edit_el.classList.add('edit');
+            todo_input_el.setAttribute('readonly', 'readonly');
+          }
+        });
+
+        //
+        // DELETE
+        todo_delete_el.addEventListener('click', (e) => {
+          console.log(todo_el);
+          document.querySelector('.todo-lists').removeChild(todo_el);
+        });
+      });
+    </script>
+  </body>
+</html>
