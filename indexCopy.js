@@ -1,48 +1,62 @@
-//REFACTORING THE CODE
+////////////////////////////
+//TODO: CRUD FUNCTIONS
+//////////////////////////////
+
 //CREATE TODO FUNCTION
 
+/*
+1. Get todo from user input
+2. Add todo to local storage / API
+*/
+
 const DB_NAME = 'todo_db';
-const todoInput = document.querySelector('#todo-input');
-const updateTodoBtn = document.querySelector('#update_todo_btn');
 
 const createTodo = () => {
-  ///try catch to catch the error, when its prone to have a error
-  try {
-    //To validate our input and make a good ux
-    if (!todoInput.value) {
-      return showMessage('Please provide a Todo title');
-    }
+  const todoInput = document.querySelector('#todo-input');
 
-    const newTodo = {
-      id: uuid(),
-      title: todoInput.value,
-      created_at: Date.now(),
-    };
+  //To validate our input and make a good ux
+  if (!todoInput.value) {
+    const formMessageSpan = document.querySelector('#form-message');
+    //error message
+    formMessageSpan.innerHTML = 'Please provide a todo title';
+    formMessageSpan.classList.remove('hidden');
+    formMessageSpan.classList.add('text-xs', 'text-red-400');
 
-    // check for Local storage
+    //disapearing error messages
+    setTimeout(() => {
+      formMessageSpan.classList.add('hidden');
+    }, 5000);
 
-    const todo_db = getDb();
-    //create new todo db array
-
-    const new_todo_db = [...todo_db, newTodo];
-    //add to local storage
-
-    //local storage take strings and not object
-    setDb(DB_NAME, new_todo_db); //calling the function from our local storage
-    //HOW TO MAKE OUR NEW add show in the UI is by calling the function to fetch the todos again, then it will show in the UI
-    fetchTodos();
-    //To clear data after users input their data by .value of empty strings
-    resetFormInput();
-  } catch (error) {
-    showMessage(error.message);
+    return;
   }
+
+  const newTodo = {
+    id: uuid(),
+    title: todoInput.value,
+    created_at: Date.now(),
+  };
+
+  // check for Local storage
+
+  const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+  //create new todo db array
+
+  const new_todo_db = [...todo_db, newTodo];
+  //add to local storage
+
+  //local storage take strings and not object
+  localStorage.setItem(DB_NAME, JSON.stringify(new_todo_db));
+  //HOW TO MAKE OUR NEW add show in the UI is by calling the function to fetch the todos again, then it will show in the UI
+  fetchTodos();
+  //To clear data after users input their data by .value of empty strings
+  todoInput.value = '';
 };
 
 ///////////////////
 //READ TODO FUNCTION
 const fetchTodos = () => {
   const todoListsContainer = document.querySelector('#todo-lists-container');
-  const todo_db = getDb(); //REFACTORING
+  const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [];
   const noTodo = todo_db.length === 0;
   //Writing the condition
   if (noTodo) {
@@ -50,10 +64,13 @@ const fetchTodos = () => {
     return;
   }
 
-  const sortedTodos = sortTodosByCreated_At(todo_db);
   //we sort to bring data in front of array, we can perform map and it will return an array
-  const todos = sortedTodos.map((todo) => {
-    return `
+  const todos = todo_db
+    .sort((a, b) =>
+      a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0
+    )
+    .map((todo) => {
+      return `
     <div
     class="group flex justify-between py-3 px-2.5 max-w-lg mx-auto rounded-lg hover:bg-slate-50"
   >
@@ -94,7 +111,7 @@ const fetchTodos = () => {
     </section>
   </div>
     `;
-  });
+    });
   todoListsContainer.innerHTML = todos.join(''); //we use a join method for the array
 };
 
@@ -107,11 +124,11 @@ const handleEditMode = (id) => {
   if (!todo_to_update) {
     return;
   }
-
+  const todoInput = document.querySelector('#todo-input');
   todoInput.value = todo_to_update.title;
 
   //To hide and update btn
-
+  const updateTodoBtn = document.querySelector('#update_todo_btn');
   updateTodoBtn.classList.remove('hidden'); //show update on todo btn
   updateTodoBtn.setAttribute('todo_id_to_update', id);
 
@@ -120,11 +137,24 @@ const handleEditMode = (id) => {
 };
 
 const updateTodo = () => {
+  const todoInput = document.querySelector('#todo-input');
   //To validate our input and make a good ux
   if (!todoInput.value) {
-    return showMessage('Todo title cannot be empty');
+    const formMessageSpan = document.querySelector('#form-message');
+    //error message
+    formMessageSpan.innerHTML = 'Please provide a todo title';
+    formMessageSpan.classList.remove('hidden');
+    formMessageSpan.classList.add('text-xs', 'text-red-400');
+
+    //disapearing error messages
+    setTimeout(() => {
+      formMessageSpan.classList.add('hidden');
+    }, 5000);
+
+    return;
   }
 
+  const updateTodoBtn = document.querySelector('#update_todo_btn');
   const todo_id_to_update = updateTodoBtn.getAttribute('todo_id_to_update');
   const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [];
   const updated_todo_db = todo_db.map((todo) => {
@@ -134,43 +164,42 @@ const updateTodo = () => {
       return todo;
     }
   });
-
-  setDb(DB_NAME, updated_todo_db); //call function  from the utity file
+  localStorage.setItem(DB_NAME, JSON.stringify(updated_todo_db));
   fetchTodos(); //FETCH TODO, SO THAT IT WILL UPDATE IT
 
-  resetFormInput(); //to clear the form and have a good UX. users can retype their input
+  todoInput.value = ''; //to clear the form and have a good UX. users can retype their input
   updateTodoBtn.classList.add('hidden');
   const addTodoBtn = document.querySelector('#add_todo_btn');
   addTodoBtn.classList.remove('hidden'); //show & add todo btn
-  showConfirmModel({
-    title: 'Todo Updated',
-    icon: 'success',
-    confirmButtonText: 'Okay',
-  });
 };
 
 //////////////////////
 //DELETE TODO FUNCTION
 const deleteTodo = (id) => {
-  const handleDelete = () => {
-    //Get todo ls [Local Storage]
-    const todo_db = getDb(DB_NAME);
-
-    //filter out todos that doesn't match the id
-    const new_todo_db = todo_db.filter((todo) => todo.id !== id);
-
-    //set the new todos without the todo that matches the id to the ls
-    setDb(DB_NAME, new_todo_db); //calling the function from our local storage
-    fetchTodos();
-  };
-  showConfirmModel({
+  Swal.fire({
     title: 'Delete Todo!',
-    text: 'Do you want to delete this todo?',
+    text: 'Do you want to continue',
     icon: 'warning',
     confirmButtonText: 'Yes!',
     showCancelButton: true,
-    cb: handleDelete,
+  }).then((res) => {
+    console.log(res.isConfirmed);
+    //to confirm the cancel btn
+    if (res.isConfirmed) {
+      //   console.log(id);
+      //Get todo ls [Local Storage]
+      const todo_db = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+      //   console.log(todo_db);
+      //filter out todos that doesn't match the id
+      const new_todo_db = todo_db.filter((todo) => todo.id !== id);
+      //   console.log(new_todo_db);
+      //set the new todos without the todo that matches the id to the ls
+      localStorage.setItem(DB_NAME, JSON.stringify(new_todo_db));
+      fetchTodos();
+    } else {
+      return;
+    }
   });
 };
-
+//call out function
 fetchTodos();

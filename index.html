@@ -20,7 +20,6 @@
     <main class="px-5 mt-10 max-w-lg mx-auto">
       <form class="flex flex-col sm:flex-row gap-2">
         <input
-          type="text"
           placeholder="What are you doing today?"
           class="p-2 rounded-lg border border-slate-100 w-full"
           id="todo-input"
@@ -34,8 +33,8 @@
           Add todo
         </button>
         <button
-          class="bg-blue-500 rounded-lg px-2.5 py-2 text-sm text-white w-[100px]"
-          onclick="createTodo()"
+          class="bg-yellow-500 rounded-lg px-2.5 py-2 text-sm text-white w-[100px] hidden"
+          onclick="updateTodo()"
           type="button"
           id="update_todo_btn"
         >
@@ -48,7 +47,7 @@
     </main>
 
     <!-- js -->
-
+    <script src="utility.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
