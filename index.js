@@ -57,7 +57,7 @@ const fetchTodos = () => {
     <div
     class="group flex justify-between py-3 px-2.5 max-w-lg mx-auto rounded-lg hover:bg-slate-50"
   >
-    <a href="">${todo.title}</a>
+    <button  onclick="handlePreviewTodo('${todo.id}')">${todo.title}</button>
     <section class="flex gap-3 invisible group-hover:visible">
       <button onclick="handleEditMode('${todo.id}')">
         <svg

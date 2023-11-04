@@ -79,3 +79,9 @@ const showConfirmModel = ({
     }
   });
 };
+
+const handlePreviewTodo = (id) => {
+  console.log(id);
+  setDb('current_todo_id', id);
+  window.location.href = '/preview-todo.html';
+};
